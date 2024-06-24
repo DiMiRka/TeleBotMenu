@@ -79,13 +79,14 @@ async def show(message: types.Message, state: FSMContext):
                 result = await resp.json()
                 meals.append(result['meals'][0])
     for meal in meals:
-        name = translator.translate(meal['strMeal'], dest='ru').text
-        recipe = re.sub('^\s+|\n|\r|\s+$', '', translator.translate(meal['strInstructions'], dest='ru').text)
-        ingredients = []
-        for key, value in meal.items():
-            if 'Ingredient' in key:
-                if value != '':
-                    ingredients.append(translator.translate(value, dest='ru').text)
-        ingredients = ', '.join(ingredients)
-        response = f'{name}\n\nРецепт:\n{recipe}\n\nИнгредиенты: {ingredients}'
-        await message.answer(response)
+        async def ans():
+            name = translator.translate(meal['strMeal'], dest='ru').text
+            recipe = re.sub('^\s+|\n|\r|\s+$', '', translator.translate(meal['strInstructions'], dest='ru').text)
+            ingredients = []
+            for key, value in meal.items():
+                if 'Ingredient' in key:
+                    if value != '':
+                        ingredients.append(translator.translate(value, dest='ru').text)
+            ingredients = ', '.join(ingredients)
+            return f'{name}\n\nРецепт:\n{recipe}\n\nИнгредиенты: {ingredients}'
+        await message.answer(await ans())
